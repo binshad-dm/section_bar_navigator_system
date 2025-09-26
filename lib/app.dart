@@ -22,11 +22,12 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
+    bool isDragging = false;
     final size = MediaQuery.of(context).size.shortestSide;
     final mediaQuery = MediaQuery.of(context).size;
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) =>SettingsCubit())
+        BlocProvider(create: (context) => SettingsCubit()),
       ],
       child: MaterialApp(
         navigatorKey: widget.navigatorKey,
@@ -39,40 +40,31 @@ class _AppState extends State<App> {
             : BlocBuilder<SettingsCubit, SettingsState>(
                 builder: (context, state) => FloatingDraggableWidget(
                   resizeToAvoidBottomInset: false,
-                  mainScreenWidget: HomeScreen(
-                    isDisableIndexBar: !context
-                        .watch<SettingsCubit>()
-                        .isFloatingScreen,
-                  ),
-
-                  onDragEvent: (dx, dy) {
-                    context
-                        .read<SettingsCubit>()
-                        .setfloatingButtonCurrentPosition(dx, dy);
+                  mainScreenWidget: HomeScreen(isDisableIndexBar: !context.watch<SettingsCubit>().isFloatingScreen),
+                  onDragging: (p0) {
+                    isDragging = p0;
                   },
-                  dx:
-                      context.read<SettingsCubit>().floatingWidgetCurrentDx ??
-                      widget.dx ??
-                      mediaQuery.width - 45, 
+                  onDragEvent: (dx, dy) {
+                    context.read<SettingsCubit>().setfloatingButtonCurrentPosition(dx, dy);
+                    if (!isDragging) {
+                      print("ds");
+                      if (dx >= MediaQuery.of(context).size.width / 2) {
+                        context.read<SettingsCubit>().setHandnessType(HandnessType.right);
+                      } else {
+                        context.read<SettingsCubit>().setHandnessType(HandnessType.left);
+                      }
+                    }
+                  },
+                  dx: context.read<SettingsCubit>().floatingWidgetCurrentDx ?? widget.dx ?? mediaQuery.width - 45,
 
-                  dy:
-                      context.read<SettingsCubit>().floatingWidgetCurrentDy ??
-                      widget.dy ??
-                      mediaQuery.height / 2 -
-                          22.5, 
+                  dy: context.read<SettingsCubit>().floatingWidgetCurrentDy ?? widget.dy ?? mediaQuery.height / 2 - 22.5,
 
-                  floatingWidget:
-                      context.watch<SettingsCubit>().isFloatingScreen
+                  floatingWidget: context.watch<SettingsCubit>().isFloatingScreen
                       ? InkWell(
                           onTap: () {
-                            context.read<SettingsCubit>().setNormalScreenState(
-                              context,
-                            );
+                            context.read<SettingsCubit>().setNormalScreenState(context);
                           },
-                          child: Opacity(
-                            opacity: 0.5,
-                            child: CircleAvatar(child: Text("S")),
-                          ),
+                          child: Opacity(opacity: 0.5, child: CircleAvatar(child: Text("S"))),
                         )
                       : SizedBox(),
                   autoAlign: true,
@@ -80,7 +72,6 @@ class _AppState extends State<App> {
                   floatingWidgetHeight: 45,
                 ),
               ),
-
       ),
     );
   }
