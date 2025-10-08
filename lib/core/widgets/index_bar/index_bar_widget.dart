@@ -7,6 +7,7 @@ import 'package:section_bar_navigator_system/feature/settings/presenter/settings
 import 'package:section_bar_navigator_system/feature/settings/presenter/state/settings_state.dart';
 import 'package:section_bar_navigator_system/feature/settings/view/settings_screen.dart';
 
+
 /// The main home screen widget for the app.
 class HomeScreen extends StatefulWidget {
   final bool isDisableIndexBar;
@@ -18,8 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _hintSelectorController = ScrollController();
-  final GlobalKey<ScrollHintSelectorState> _hintSelectorKey =
-      GlobalKey<ScrollHintSelectorState>();
+  final GlobalKey<ScrollHintSelectorState> _hintSelectorKey = GlobalKey<ScrollHintSelectorState>();
 
   int _pointerCount = 0;
   List<String> tagList = [];
@@ -28,9 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    tagList = generateUniqueTags(
-      context.read<SettingsCubit>().screenList.map((e) => e.name).toList(),
-    );
+    tagList = generateUniqueTags(context.read<SettingsCubit>().screenList.map((e) => e.name).toList());
     context.read<SettingsCubit>().loadSettings();
     super.initState();
   }
@@ -41,11 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-
   _handlePointerDown(PointerDownEvent event, isCheckNeeded) {
-    if (isCheckNeeded &&
-        context.read<SettingsCubit>().isFloatingScreen &&
-        _pointerCount == 2) {
+    if (isCheckNeeded && context.read<SettingsCubit>().isFloatingScreen && _pointerCount == 2) {
       context.read<SettingsCubit>().setNormalScreenState(context);
     }
     _pointerCount++;
@@ -53,11 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _lastPointerDeltas[event.pointer] = Offset.zero;
   }
 
-
   _handlePointerUp(PointerUpEvent event, isCheckNeeded) {
-    if (isCheckNeeded &&
-        context.read<SettingsCubit>().isFloatingScreen &&
-        _pointerCount == 2) {
+    if (isCheckNeeded && context.read<SettingsCubit>().isFloatingScreen && _pointerCount == 2) {
       context.read<SettingsCubit>().setNormalScreenState(context);
     }
     _pointerCount = (_pointerCount - 1).clamp(0, 2);
@@ -65,11 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _lastPointerDeltas.remove(event.pointer);
   }
 
-
   _handlePointerMove(PointerMoveEvent event, isCheckNeeded) {
-    if (isCheckNeeded &&
-        context.read<SettingsCubit>().isFloatingScreen &&
-        _pointerCount == 2) {
+    if (isCheckNeeded && context.read<SettingsCubit>().isFloatingScreen && _pointerCount == 2) {
       context.read<SettingsCubit>().setNormalScreenState(context);
     }
     if (_pointerCount == 2 && _lastPointerPositions.length == 2) {
@@ -93,16 +82,12 @@ class _HomeScreenState extends State<HomeScreen> {
         final double newOffset = _hintSelectorController.offset + avgDelta;
         if (_hintSelectorController.hasClients) {
           _hintSelectorController.jumpTo(
-            newOffset.clamp(
-              _hintSelectorController.position.minScrollExtent,
-              _hintSelectorController.position.maxScrollExtent,
-            ),
+            newOffset.clamp(_hintSelectorController.position.minScrollExtent, _hintSelectorController.position.maxScrollExtent),
           );
         }
       }
     }
   }
-
 
   void _handleScreenTap() {
     _hintSelectorKey.currentState?.hideOverlay();
@@ -115,54 +100,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(248, 255, 254, 254),
-      appBar:
-          context
-                  .watch<SettingsCubit>()
-                  .screenList[context
-                      .read<SettingsCubit>()
-                      .currentSelectedIndex]
-                  .currentSelectedScreenIndex ==
-              0
+      appBar: context.watch<SettingsCubit>().screenList[context.read<SettingsCubit>().currentSelectedIndex].currentSelectedScreenIndex == 0
           ? AppBar(
-              leading:
-                  context.watch<SettingsCubit>().handnessType ==
-                      HandnessType.left
+              leading: context.watch<SettingsCubit>().handnessType == HandnessType.left
                   ? IconButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SettingScreen(),
-                          ),
-                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => SettingScreen()));
                       },
                       icon: Icon(Icons.settings, color: Colors.white),
                     )
                   : null,
-              actions:
-                  context.watch<SettingsCubit>().handnessType ==
-                      HandnessType.right
+              actions: context.watch<SettingsCubit>().handnessType == HandnessType.right
                   ? [
                       IconButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SettingScreen(),
-                            ),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => SettingScreen()));
                         },
                         icon: Icon(Icons.settings, color: Colors.white),
                       ),
                     ]
                   : [],
               centerTitle: true,
-              backgroundColor:
-                  cubit.screenList[cubit.currentSelectedIndex].tabColor,
-              title: Text(
-                cubit.screenList[cubit.currentSelectedIndex].name,
-                style: const TextStyle(color: Colors.white),
-              ),
+              backgroundColor: cubit.screenList[cubit.currentSelectedIndex].tabColor,
+              title: Text(cubit.screenList[cubit.currentSelectedIndex].name, style: const TextStyle(color: Colors.white)),
             )
           : null,
       body: Stack(
@@ -187,30 +147,29 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: _handleScreenTap,
               child: Row(
                 children: [
-                  if (size > 600 &&
-                      !cubit
-                          .screenList[cubit.currentSelectedIndex]
-                          .isScreenFullWidth)
+                  if (size > 600 && !cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth)
                     Expanded(child: SizedBox(height: double.infinity)),
                   Expanded(
                     flex: size > 600 ? 4 : 1,
                     child: Padding(
-                      padding: EdgeInsets.only(right:size>600&&cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth&&cubit.handnessType == HandnessType.right?60:0,left:size>600&& cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth&&cubit.handnessType == HandnessType.left?60:0 ),
+                      padding: EdgeInsets.only(
+                        right:
+                            size > 600 && cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth && cubit.handnessType == HandnessType.right
+                            ? 60
+                            : 0,
+                        left: size > 600 && cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth && cubit.handnessType == HandnessType.left
+                            ? 60
+                            : 0,
+                      ),
                       child: SizedBox(
                         width: size > 600 ? size / 1.3 : size,
-                        child:
-                            cubit
-                                .screenList[cubit.currentSelectedIndex]
-                                .screens[cubit
-                                .screenList[cubit.currentSelectedIndex]
-                                .currentSelectedScreenIndex],
+                        child: cubit
+                            .screenList[cubit.currentSelectedIndex]
+                            .screens[cubit.screenList[cubit.currentSelectedIndex].currentSelectedScreenIndex],
                       ),
                     ),
                   ),
-                  if (size > 600 &&
-                      !cubit
-                          .screenList[cubit.currentSelectedIndex]
-                          .isScreenFullWidth)
+                  if (size > 600 && !cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth)
                     Expanded(child: SizedBox(height: double.infinity)),
                 ],
               ),
@@ -236,25 +195,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: _handleScreenTap,
                 child: Row(
                   children: [
-                    if (!cubit
-                        .screenList[cubit.currentSelectedIndex]
-                        .isScreenFullWidth)
+                    if (!cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth)
                       Expanded(
-                        child: Container(
-                          color: const Color.fromARGB(255, 239, 239, 239),
-                          height: double.infinity,
-                        ),
+                        child: Container(color: const Color.fromARGB(255, 239, 239, 239), height: double.infinity),
                       ),
                     Expanded(flex: size > 600 ? 4 : 1, child: SizedBox()),
 
-                    if (!cubit
-                        .screenList[cubit.currentSelectedIndex]
-                        .isScreenFullWidth)
+                    if (!cubit.screenList[cubit.currentSelectedIndex].isScreenFullWidth)
                       Expanded(
-                        child: Container(
-                          color: const Color.fromARGB(255, 239, 239, 239),
-                          height: double.infinity,
-                        ),
+                        child: Container(color: const Color.fromARGB(255, 239, 239, 239), height: double.infinity),
                       ),
                   ],
                 ),
@@ -265,21 +214,17 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.only(bottom: 10),
             child: BlocBuilder<SettingsCubit, SettingsState>(
               builder: (context, state) {
-                 tagList = generateUniqueTags(
-      context.read<SettingsCubit>().screenList.map((e) => e.name).toList(),
-    );
+                tagList = generateUniqueTags(context.read<SettingsCubit>().screenList.map((e) => e.name).toList());
                 return ScrollHintSelector(
-                key: _hintSelectorKey,
-                tagList: tagList,
-                listData: cubit.screenList,
-                onSelected: (int tag) {
-                  cubit.setcurrentSelectedIndex(tag);
-                },
-                currentSelectedIndex: context
-                    .read<SettingsCubit>()
-                    .currentSelectedIndex,
-                externalScrollController: _hintSelectorController,
-              );
+                  key: _hintSelectorKey,
+                  tagList: tagList,
+                  listData: cubit.screenList,
+                  onSelected: (int tag) {
+                    cubit.setcurrentSelectedIndex(tag);
+                  },
+                  currentSelectedIndex: context.read<SettingsCubit>().currentSelectedIndex,
+                  externalScrollController: _hintSelectorController,
+                );
               },
             ),
           ),
