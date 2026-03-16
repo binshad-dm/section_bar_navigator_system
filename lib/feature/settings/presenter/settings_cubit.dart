@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:section_bar_navigator_system/core/constants.dart';
@@ -11,7 +10,6 @@ import 'package:section_bar_navigator_system/feature/sections/lab_results_page.d
 import 'package:section_bar_navigator_system/feature/settings/data/model/screenmodel.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/state/settings_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 enum HandnessType { left, right }
 
@@ -26,31 +24,24 @@ class SettingsCubit extends Cubit<SettingsState> {
   bool _isFloatingScreen = true;
   Timer? _hideOverlayTimer;
 
-  void updateSubScreenIndex({newIndex}) {
-    newIndex != null
-        ? screenList[currentSelectedIndex].currentSelectedScreenIndex = newIndex
-        : screenList[currentSelectedIndex].currentSelectedScreenIndex++;
-    emit(SettingsDataLoaded());
-  }
-
   final List<ScreenModel> screenList = [
-         ScreenModel(
+    ScreenModel(
       isScreenFullWidth: true,
-      screens: [AnestheticPage()],
+      screens: AnestheticPage(),
       name: 'Anesthetics',
-      currentSelectedScreenIndex: 0,
       tabColor: Colors.indigoAccent,
-    ), ScreenModel(screens: [ActivityPage()], name: 'Activity Page', currentSelectedScreenIndex: 0, tabColor: Colors.green),
-       ScreenModel(
-      screens: [LabResultPage()],
+    ),
+    ScreenModel(
+      screens: ActivityPage(),
+      name: 'Activity Page',
+      tabColor: Colors.green,
+    ),
+    ScreenModel(
+      screens: LabResultPage(),
       isScreenFullWidth: true,
       name: 'Lab Results',
-      currentSelectedScreenIndex: 0,
       tabColor: Colors.deepOrange,
     ),
-   
-
-    
   ];
 
   HandnessType get handnessType => _handnessType;
@@ -78,7 +69,10 @@ class SettingsCubit extends Cubit<SettingsState> {
     floatingWidgetCurrentDy = dy;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList("floatButtonPosition", [dx != null ? dx.toString() : '', dy != null ? dy.toString() : '']);
+    await prefs.setStringList("floatButtonPosition", [
+      dx != null ? dx.toString() : '',
+      dy != null ? dy.toString() : '',
+    ]);
   }
 
   Future<void> setSectionOrderInitially() async {
@@ -99,19 +93,19 @@ class SettingsCubit extends Cubit<SettingsState> {
       ..addAll(newScreenOrder);
   }
 
- Future<void> resetReorderedSection() async {
-  final prefs = await SharedPreferences.getInstance();
+  Future<void> resetReorderedSection() async {
+    final prefs = await SharedPreferences.getInstance();
 
-  screenList
-    ..clear()
-    ..addAll(defaultSectionList); 
+    screenList
+      ..clear()
+      ..addAll(defaultSectionList);
 
-  await prefs.setStringList(
-    "SectionList",
-    screenList.map((e) => e.name).toList(),
-  );
-   emit(SettingsDataLoaded());
-}
+    await prefs.setStringList(
+      "SectionList",
+      screenList.map((e) => e.name).toList(),
+    );
+    emit(SettingsDataLoaded());
+  }
 
   void setFloatingScreenState(width) async {
     _isFloatingScreen = true;
@@ -137,17 +131,22 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   Future<void> loadSettings() async {
-  
     final prefs = await SharedPreferences.getInstance();
     final hand = prefs.getString('handnessType');
     final vib = prefs.getBool('vibrationEnabled');
     setSectionOrderInitially();
-    final List<String>? positionList = prefs.getStringList('floatButtonPosition');
+    final List<String>? positionList = prefs.getStringList(
+      'floatButtonPosition',
+    );
     if (positionList != null && positionList.length >= 2) {
       final rawDx = positionList[0];
       final rawDy = positionList[1];
-      final parsedDx = double.tryParse((rawDx.trim().toLowerCase() == 'null') ? '' : rawDx);
-      final parsedDy = double.tryParse((rawDy.trim().toLowerCase() == 'null') ? '' : rawDy);
+      final parsedDx = double.tryParse(
+        (rawDx.trim().toLowerCase() == 'null') ? '' : rawDx,
+      );
+      final parsedDy = double.tryParse(
+        (rawDy.trim().toLowerCase() == 'null') ? '' : rawDy,
+      );
       if (parsedDx != null) {
         floatingWidgetCurrentDx = parsedDx;
       }
@@ -182,9 +181,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 }
 
-
-
-  String generateUniqueTag(List<String> items, int index) {
+String generateUniqueTag(List<String> items, int index) {
   final Set<String> usedTags = {};
   final List<String> results = [];
 
@@ -214,20 +211,20 @@ class SettingsCubit extends Cubit<SettingsState> {
     "Returned list length does not match input.",
   );
   return results[index];
-  }
+}
 
-  String generateFallbackTag(String word, Set<String> usedTags) {
-    // Simple fallback implementation
-    for (int i = 1; i <= 99; i++) {
-      String candidate = '${word[0].toUpperCase()}$i';
-      if (!usedTags.contains(candidate)) {
-        return candidate;
-      }
+String generateFallbackTag(String word, Set<String> usedTags) {
+  // Simple fallback implementation
+  for (int i = 1; i <= 99; i++) {
+    String candidate = '${word[0].toUpperCase()}$i';
+    if (!usedTags.contains(candidate)) {
+      return candidate;
     }
-    return '${word[0].toUpperCase()}99';
   }
+  return '${word[0].toUpperCase()}99';
+}
 
-  List<String> generateUniqueTags(List<String> items) {
+List<String> generateUniqueTags(List<String> items) {
   final Set<String> usedTags = {};
   final List<String> results = [];
 

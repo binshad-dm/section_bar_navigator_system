@@ -12,7 +12,12 @@ class RightArrowPointer extends StatelessWidget {
   final double height;
   final isRightHand;
   final Color color;
-  const RightArrowPointer({this.height = 20, this.color = const Color(0x22FF0000), this.isRightHand = true, super.key});
+  const RightArrowPointer({
+    this.height = 20,
+    this.color = const Color(0x22FF0000),
+    this.isRightHand = true,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,11 +65,17 @@ class CustomHintWidget extends StatelessWidget {
   final Color color;
   final double opacity;
 
-  const CustomHintWidget({super.key, required this.text, required this.color, required this.opacity});
+  const CustomHintWidget({
+    super.key,
+    required this.text,
+    required this.color,
+    required this.opacity,
+  });
 
   @override
   Widget build(BuildContext context) {
-    bool isRightHand = context.read<SettingsCubit>().handnessType == HandnessType.right;
+    bool isRightHand =
+        context.read<SettingsCubit>().handnessType == HandnessType.right;
     final size = MediaQuery.of(context).size;
     return AnimatedOpacity(
       opacity: opacity,
@@ -73,20 +84,40 @@ class CustomHintWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isRightHand) RightArrowPointer(height: 24, color: color.withOpacity(0.6), isRightHand: isRightHand),
+            if (!isRightHand)
+              RightArrowPointer(
+                height: 24,
+                color: color.withOpacity(0.6),
+                isRightHand: isRightHand,
+              ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Text(
                 text,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
-            if (isRightHand) RightArrowPointer(height: 24, color: color.withOpacity(0.6), isRightHand: isRightHand),
+            if (isRightHand)
+              RightArrowPointer(
+                height: 24,
+                color: color.withOpacity(0.6),
+                isRightHand: isRightHand,
+              ),
           ],
         ),
       ),
@@ -126,12 +157,16 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
   double _overlayOpacity = 0;
   double? _selectedCenterOffset;
 
-  late final List<GlobalKey> _itemKeys = List.generate(widget.listData.length, (_) => GlobalKey());
+  late final List<GlobalKey> _itemKeys = List.generate(
+    widget.listData.length,
+    (_) => GlobalKey(),
+  );
 
   @override
   void initState() {
     super.initState();
-    context.read<SettingsCubit>().controller = widget.externalScrollController ?? ScrollController();
+    context.read<SettingsCubit>().controller =
+        widget.externalScrollController ?? ScrollController();
     _currentSelectedName = widget.listData[0].name;
     _currentSelectedTag = widget.tagList.first;
     context.read<SettingsCubit>().controller!.addListener(_onScroll);
@@ -164,18 +199,23 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
         final BuildContext? context = key.currentContext;
         if (context == null) continue;
         final RenderBox renderBox = context.findRenderObject() as RenderBox;
-        final Offset offset = renderBox.localToGlobal(Offset.zero, ancestor: box);
+        final Offset offset = renderBox.localToGlobal(
+          Offset.zero,
+          ancestor: box,
+        );
         final double itemCenter = offset.dy + renderBox.size.height / 2;
         if ((itemCenter - listCenter).abs() < renderBox.size.height / 2) {
           final ScreenModel newSelected = widget.listData[i];
           if (_currentSelectedName != newSelected.name) {
-            cubit.screenList[cubit.currentSelectedIndex].currentSelectedScreenIndex = 0;
+            // cubit.screenList[cubit.currentSelectedIndex].currentSelectedScreenIndex = 0;
             _currentSelectedName = newSelected.name;
             _currentSelectedTag = widget.tagList[i];
             if (cubit.vibrationEnabled) {
               HapticFeedback.vibrate();
             }
-            currentSelectedIndex = widget.listData.indexWhere((element) => element.name == _currentSelectedName);
+            currentSelectedIndex = widget.listData.indexWhere(
+              (element) => element.name == _currentSelectedName,
+            );
             widget.onSelected(currentSelectedIndex);
 
             _selectedCenterOffset = itemCenter;
@@ -255,15 +295,23 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
       final RenderBox renderBox = context.findRenderObject() as RenderBox;
       final Offset offset = renderBox.localToGlobal(Offset.zero, ancestor: box);
       final double itemCenter = offset.dy + renderBox.size.height / 2;
-      final double targetOffset = context.read<SettingsCubit>().controller!.offset + (itemCenter - listCenter);
+      final double targetOffset =
+          context.read<SettingsCubit>().controller!.offset +
+          (itemCenter - listCenter);
 
-      if ((context.read<SettingsCubit>().controller!.offset - targetOffset).abs() > 8.0) {
+      if ((context.read<SettingsCubit>().controller!.offset - targetOffset)
+              .abs() >
+          8.0) {
         _isSnapping = true;
         if (context.read<SettingsCubit>().vibrationEnabled) {
           HapticFeedback.vibrate();
         }
 
-        await context.read<SettingsCubit>().controller!.animateTo(targetOffset, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+        await context.read<SettingsCubit>().controller!.animateTo(
+          targetOffset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
         _isSnapping = false;
       }
     }
@@ -313,9 +361,14 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Visibility(
-      visible: size.shortestSide > 600 ? true : !context.watch<SettingsCubit>().isFloatingScreen,
+      visible: size.shortestSide > 600
+          ? true
+          : !context.watch<SettingsCubit>().isFloatingScreen,
       child: Align(
-        alignment: context.watch<SettingsCubit>().handnessType == HandnessType.right ? Alignment.centerRight : Alignment.centerLeft,
+        alignment:
+            context.watch<SettingsCubit>().handnessType == HandnessType.right
+            ? Alignment.centerRight
+            : Alignment.centerLeft,
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             final double containerHeight = constraints.maxHeight;
@@ -326,7 +379,13 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Stack(
                 clipBehavior: Clip.none,
@@ -337,119 +396,148 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
                       if (_isSnapping) return false;
                       showWidgetOnScroll();
                       if (notification is ScrollEndNotification ||
-                          (notification is UserScrollNotification && notification.direction == ScrollDirection.idle)) {
+                          (notification is UserScrollNotification &&
+                              notification.direction == ScrollDirection.idle)) {
                         _snapTimer?.cancel();
-                        _snapTimer = Timer(const Duration(milliseconds: 300), () {
-                          _snapToNearestTag(containerHeight);
-                        });
+                        _snapTimer = Timer(
+                          const Duration(milliseconds: 300),
+                          () {
+                            _snapToNearestTag(containerHeight);
+                          },
+                        );
                       }
                       return false;
                     },
-                    child:ListView.builder(
+                    child: ListView.builder(
                       // physics: NeverScrollableScrollPhysics(),
-  key: _listKey,
-  controller: context.watch<SettingsCubit>().controller,
-  itemCount: widget.tagList.length,
-  padding: EdgeInsets.only(
-    top: containerHeight / 2 - itemHeight / 2,
-    bottom: containerHeight / 2 - itemHeight / 2,
-  ),
-  itemBuilder: (BuildContext context, int index) {
-    final String tag = widget.tagList[index];
-    final bool selected = widget.tagList[index] == _currentSelectedTag;
-    
-    return GestureDetector(
-      onTap: () async {
-        final GlobalKey key = _itemKeys[index];
-        final BuildContext? context = key.currentContext;
-        if (context != null) {
-          final BuildContext? listContext = _listKey.currentContext;
-          if (listContext != null) {
-            final RenderBox box = listContext.findRenderObject() as RenderBox;
-            final RenderBox renderBox = context.findRenderObject() as RenderBox;
-            final Offset offset = renderBox.localToGlobal(Offset.zero, ancestor: box);
-            final double itemCenter = offset.dy + renderBox.size.height / 2;
-            final double listCenter = box.size.height / 2;
-            final double scrollOffset = context.read<SettingsCubit>().controller!.offset + (itemCenter - listCenter);
-            _isSnapping = true;
-            await context.read<SettingsCubit>().controller!.animateTo(
-              scrollOffset,
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOut,
-            );
-            _isSnapping = false;
-            if (mounted) {
-              setState(() {
-                _currentSelectedTag = widget.tagList[index];
-                _currentSelectedName = widget.listData[index].name;
-                currentSelectedIndex = index;
-              });
-            }
-            widget.onSelected(index);
-            showWidgetOnScroll();
-          }
-        }
-      },
-      behavior: HitTestBehavior.translucent,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          key: _itemKeys[index],
-          alignment: Alignment.center,
-          height:selected? 48:38,
-          width: selected? 48:38,
-          decoration: BoxDecoration(
-            // Simple color scheme
-            color: selected 
-              ? widget.listData[index].tabColor 
-              : widget.listData[index].tabColor.withOpacity(0.1),
-            
-            // Clean circular shape
-            shape: BoxShape.circle,
-             
-            // Subtle shadow for depth
-            boxShadow: selected 
-              ?  [
-                    BoxShadow(
-                      color: widget.listData[index].tabColor.withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                      spreadRadius: 2,
+                      key: _listKey,
+                      controller: context.watch<SettingsCubit>().controller,
+                      itemCount: widget.tagList.length,
+                      padding: EdgeInsets.only(
+                        top: containerHeight / 2 - itemHeight / 2,
+                        bottom: containerHeight / 2 - itemHeight / 2,
+                      ),
+                      itemBuilder: (BuildContext context, int index) {
+                        final String tag = widget.tagList[index];
+                        final bool selected =
+                            widget.tagList[index] == _currentSelectedTag;
+
+                        return GestureDetector(
+                          onTap: () async {
+                            final GlobalKey key = _itemKeys[index];
+                            final BuildContext? context = key.currentContext;
+                            if (context != null) {
+                              final BuildContext? listContext =
+                                  _listKey.currentContext;
+                              if (listContext != null) {
+                                final RenderBox box =
+                                    listContext.findRenderObject() as RenderBox;
+                                final RenderBox renderBox =
+                                    context.findRenderObject() as RenderBox;
+                                final Offset offset = renderBox.localToGlobal(
+                                  Offset.zero,
+                                  ancestor: box,
+                                );
+                                final double itemCenter =
+                                    offset.dy + renderBox.size.height / 2;
+                                final double listCenter = box.size.height / 2;
+                                final double scrollOffset =
+                                    context
+                                        .read<SettingsCubit>()
+                                        .controller!
+                                        .offset +
+                                    (itemCenter - listCenter);
+                                _isSnapping = true;
+                                await context
+                                    .read<SettingsCubit>()
+                                    .controller!
+                                    .animateTo(
+                                      scrollOffset,
+                                      duration: const Duration(
+                                        milliseconds: 250,
+                                      ),
+                                      curve: Curves.easeOut,
+                                    );
+                                _isSnapping = false;
+                                if (mounted) {
+                                  setState(() {
+                                    _currentSelectedTag = widget.tagList[index];
+                                    _currentSelectedName =
+                                        widget.listData[index].name;
+                                    currentSelectedIndex = index;
+                                  });
+                                }
+                                widget.onSelected(index);
+                                showWidgetOnScroll();
+                              }
+                            }
+                          },
+                          behavior: HitTestBehavior.translucent,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10.0,
+                              horizontal: 2.0,
+                            ),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeOut,
+                              key: _itemKeys[index],
+                              alignment: Alignment.center,
+                              height: selected ? 48 : 38,
+                              width: selected ? 48 : 38,
+                              decoration: BoxDecoration(
+                                // Simple color scheme
+                                color: selected
+                                    ? widget.listData[index].tabColor
+                                    : widget.listData[index].tabColor
+                                          .withOpacity(0.1),
+
+                                // Clean circular shape
+                                shape: BoxShape.circle,
+
+                                // Subtle shadow for depth
+                                boxShadow: selected
+                                    ? [
+                                        BoxShadow(
+                                          color: widget.listData[index].tabColor
+                                              .withOpacity(0.4),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                          spreadRadius: 2,
+                                        ),
+                                        BoxShadow(
+                                          color: Colors.white.withOpacity(0.1),
+                                          blurRadius: 8,
+                                          offset: const Offset(-2, -2),
+                                        ),
+                                      ]
+                                    : [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.1),
+                                          blurRadius: 2,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ],
+                              ),
+                              child: Text(
+                                tag,
+                                style: TextStyle(
+                                  fontSize: selected ? 18 : 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: selected
+                                      ? Colors.white
+                                      : widget.listData[index].tabColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(-2, -2),
-                    ),
-                  ]
-              : [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-          ),
-          child: Text(
-            tag,
-            style: TextStyle(
-              fontSize: selected ? 18 : 16,
-              fontWeight:FontWeight.bold,
-              color: selected 
-                ? Colors.white 
-                : widget.listData[index].tabColor,
-            ),
-          ),
-        ),
-      ),
-    );
-  },
-)
                   ),
                   if (_currentSelectedName != null)
-                    if (context.watch<SettingsCubit>().handnessType == HandnessType.right)
+                    if (context.watch<SettingsCubit>().handnessType ==
+                        HandnessType.right)
                       Positioned(
                         left: -_calculateHintWidth(_currentSelectedName!),
                         top: (containerHeight / 2) - _calculateHintHalfHeight(),
@@ -459,7 +547,8 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
                           color: widget.listData[currentSelectedIndex].tabColor,
                         ),
                       ),
-                  if (context.watch<SettingsCubit>().handnessType == HandnessType.left)
+                  if (context.watch<SettingsCubit>().handnessType ==
+                      HandnessType.left)
                     Positioned(
                       right: -_calculateHintWidth(_currentSelectedName!),
                       top: (containerHeight / 2) - _calculateHintHalfHeight(),
@@ -478,4 +567,3 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
     );
   }
 }
-
