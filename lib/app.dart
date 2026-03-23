@@ -3,15 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:section_bar_navigator_system/core/theme/app_theme.dart';
 import 'package:section_bar_navigator_system/core/widgets/index_bar/index_bar_widget.dart';
+import 'package:section_bar_navigator_system/feature/settings/data/model/screenmodel.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/settings_cubit.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/state/settings_state.dart';
+import 'package:section_bar_navigator_system/section_bar_navigator.dart';
 
 class App extends StatefulWidget {
-  const App({super.key, required this.navigatorKey, this.dx, this.dy});
+  const App({
+    super.key,
+    required this.navigatorKey,
+    required this.sections,
+    this.showAppBar = false,
+    this.onFloatingPositionChanged,
+    this.dx,
+    this.dy,
+  });
 
   final GlobalKey<NavigatorState> navigatorKey;
-  final dx;
-  final dy;
+  final List<SectionData> sections;
+  final bool showAppBar;
+  final FloatingPositionChangedCallback? onFloatingPositionChanged;
+  final double? dx;
+  final double? dy;
 
   @override
   State<App> createState() => _AppState();
@@ -24,7 +37,11 @@ class _AppState extends State<App> {
     final size = MediaQuery.of(context).size.shortestSide;
     final mediaQuery = MediaQuery.of(context).size;
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => SettingsCubit())],
+      providers: [
+        BlocProvider(
+          create: (context) => SettingsCubit()..loadSettings(widget.sections),
+        ),
+      ],
       child: MaterialApp(
         navigatorKey: widget.navigatorKey,
         debugShowCheckedModeBanner: false,

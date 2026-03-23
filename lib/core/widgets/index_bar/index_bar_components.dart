@@ -126,7 +126,7 @@ class CustomHintWidget extends StatelessWidget {
 }
 
 class ScrollHintSelector extends StatefulWidget {
-  final List<ScreenModel> listData;
+  final List<SectionData> listData;
   final ValueChanged<int> onSelected;
   final ScrollController? externalScrollController;
   final List<String> tagList;
@@ -205,7 +205,7 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
         );
         final double itemCenter = offset.dy + renderBox.size.height / 2;
         if ((itemCenter - listCenter).abs() < renderBox.size.height / 2) {
-          final ScreenModel newSelected = widget.listData[i];
+          final SectionData newSelected = widget.listData[i];
           if (_currentSelectedName != newSelected.name) {
             // cubit.screenList[cubit.currentSelectedIndex].currentSelectedScreenIndex = 0;
             _currentSelectedName = newSelected.name;

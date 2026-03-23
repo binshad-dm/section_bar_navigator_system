@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ScreenModel {
+class SectionData {
   final String name;
   final List<String>? pagesData;
   final Color tabColor;
   final Widget screens;
   final bool isScreenFullWidth;
 
-  ScreenModel({
+  SectionData({
     required this.name,
     this.isScreenFullWidth = false,
     required this.tabColor,
@@ -15,3 +15,4 @@ class ScreenModel {
     required this.screens,
   });
 }
+

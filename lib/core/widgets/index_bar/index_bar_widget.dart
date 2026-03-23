@@ -3,12 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:section_bar_navigator_system/core/widgets/index_bar/index_bar_components.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/settings_cubit.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/state/settings_state.dart';
-import 'package:section_bar_navigator_system/feature/settings/view/settings_screen.dart';
+
 
 /// The main home screen widget for the app.
 class HomeScreen extends StatefulWidget {
   final bool isDisableIndexBar;
-  const HomeScreen({super.key, this.isDisableIndexBar = false});
+  final bool showAppBar;
+  const HomeScreen({
+    super.key,
+    this.isDisableIndexBar = false,
+    this.showAppBar = false,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
     tagList = generateUniqueTags(
       context.read<SettingsCubit>().screenList.map((e) => e.name).toList(),
     );
-    context.read<SettingsCubit>().loadSettings();
     super.initState();
   }
 
@@ -109,16 +113,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(248, 255, 254, 254),
-      appBar: AppBar(
+      appBar: widget.showAppBar ? AppBar(
         leading:
             context.watch<SettingsCubit>().handnessType == HandnessType.left
             ? IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SettingScreen()),
-                  );
-                },
+                onPressed: () {}, // Removed Settings navigation
                 icon: Icon(Icons.settings, color: Colors.white),
               )
             : null,
@@ -126,12 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
             context.watch<SettingsCubit>().handnessType == HandnessType.right
             ? [
                 IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingScreen()),
-                    );
-                  },
+                  onPressed: () {}, // Removed Settings navigation
                   icon: Icon(Icons.settings, color: Colors.white),
                 ),
               ]
@@ -142,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
           cubit.screenList[cubit.currentSelectedIndex].name,
           style: const TextStyle(color: Colors.white),
         ),
-      ),
+      ) : null,
       body: Stack(
         children: [
           Listener(

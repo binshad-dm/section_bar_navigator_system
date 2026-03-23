@@ -2,11 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:section_bar_navigator_system/core/constants.dart';
-import 'package:section_bar_navigator_system/feature/sections/activity_page.dart';
-import 'package:section_bar_navigator_system/feature/sections/anesthetics/pages/anesthetic_page.dart';
-
-import 'package:section_bar_navigator_system/feature/sections/lab_results_page.dart';
 import 'package:section_bar_navigator_system/feature/settings/data/model/screenmodel.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/state/settings_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,9 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum HandnessType { left, right }
 
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit() : super(SettingsInitial()) {
-    loadSettings();
-  }
+  SettingsCubit() : super(SettingsInitial());
   ScrollController? controller;
   HandnessType _handnessType = HandnessType.right;
   bool _vibrationEnabled = true;
@@ -24,25 +17,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   bool _isFloatingScreen = true;
   Timer? _hideOverlayTimer;
 
-  final List<ScreenModel> screenList = [
-    ScreenModel(
-      isScreenFullWidth: true,
-      screens: AnestheticPage(),
-      name: 'Anesthetics',
-      tabColor: Colors.indigoAccent,
-    ),
-    ScreenModel(
-      screens: ActivityPage(),
-      name: 'Activity Page',
-      tabColor: Colors.green,
-    ),
-    ScreenModel(
-      screens: LabResultPage(),
-      isScreenFullWidth: true,
-      name: 'Lab Results',
-      tabColor: Colors.deepOrange,
-    ),
-  ];
+  final List<SectionData> screenList = [];
+
 
   HandnessType get handnessType => _handnessType;
   bool get vibrationEnabled => _vibrationEnabled;
@@ -69,7 +45,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     floatingWidgetCurrentDy = dy;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList("floatButtonPosition", [
+    await prefs.setStringList("section_nav_floatButtonPosition", [
       dx != null ? dx.toString() : '',
       dy != null ? dy.toString() : '',
     ]);
@@ -77,11 +53,11 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   Future<void> setSectionOrderInitially() async {
     final prefs = await SharedPreferences.getInstance();
-    final sectionsNameList = prefs.getStringList("SectionList");
+    final sectionsNameList = prefs.getStringList("section_nav_SectionList");
 
     if (sectionsNameList == null || sectionsNameList.isEmpty) return;
 
-    List<ScreenModel> newScreenOrder = [];
+    List<SectionData> newScreenOrder = [];
 
     for (var name in sectionsNameList) {
       final match = screenList.firstWhere((e) => e.name == name);
@@ -97,11 +73,11 @@ class SettingsCubit extends Cubit<SettingsState> {
     final prefs = await SharedPreferences.getInstance();
 
     screenList
-      ..clear()
-      ..addAll(defaultSectionList);
+      ..clear();
+    // Default screens reset is removed because it now takes dynamic screens.
 
     await prefs.setStringList(
-      "SectionList",
+      "section_nav_SectionList",
       screenList.map((e) => e.name).toList(),
     );
     emit(SettingsDataLoaded());
@@ -130,13 +106,15 @@ class SettingsCubit extends Cubit<SettingsState> {
     });
   }
 
-  Future<void> loadSettings() async {
+  Future<void> loadSettings(List<SectionData> initialSections) async {
+    screenList.clear();
+    screenList.addAll(initialSections);
     final prefs = await SharedPreferences.getInstance();
-    final hand = prefs.getString('handnessType');
-    final vib = prefs.getBool('vibrationEnabled');
+    final hand = prefs.getString('section_nav_handnessType');
+    final vib = prefs.getBool('section_nav_vibrationEnabled');
     setSectionOrderInitially();
     final List<String>? positionList = prefs.getStringList(
-      'floatButtonPosition',
+      'section_nav_floatButtonPosition',
     );
     if (positionList != null && positionList.length >= 2) {
       final rawDx = positionList[0];
@@ -169,14 +147,14 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setHandnessType(HandnessType value) async {
     _handnessType = value;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('handnessType', value.name);
+    await prefs.setString('section_nav_handnessType', value.name);
     emit(SettingsDataLoaded());
   }
 
   Future<void> toggleVibration(bool value) async {
     _vibrationEnabled = value;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('vibrationEnabled', value);
+    await prefs.setBool('section_nav_vibrationEnabled', value);
     emit(SettingsDataLoaded());
   }
 }
