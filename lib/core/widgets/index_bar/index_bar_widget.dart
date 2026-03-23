@@ -4,7 +4,6 @@ import 'package:section_bar_navigator_system/core/widgets/index_bar/index_bar_co
 import 'package:section_bar_navigator_system/feature/settings/presenter/settings_cubit.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/state/settings_state.dart';
 
-
 /// The main home screen widget for the app.
 class HomeScreen extends StatefulWidget {
   final bool isDisableIndexBar;
@@ -12,7 +11,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     this.isDisableIndexBar = false,
-    this.showAppBar = false,
+    this.showAppBar = true,
   });
 
   @override
@@ -31,9 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    tagList = generateUniqueTags(
-      context.read<SettingsCubit>().screenList.map((e) => e.name).toList(),
-    );
+    // tagList calculation moved to SettingsCubit
     super.initState();
   }
 
@@ -113,30 +110,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(248, 255, 254, 254),
-      appBar: widget.showAppBar ? AppBar(
-        leading:
-            context.watch<SettingsCubit>().handnessType == HandnessType.left
-            ? IconButton(
-                onPressed: () {}, // Removed Settings navigation
-                icon: Icon(Icons.settings, color: Colors.white),
-              )
-            : null,
-        actions:
-            context.watch<SettingsCubit>().handnessType == HandnessType.right
-            ? [
-                IconButton(
-                  onPressed: () {}, // Removed Settings navigation
-                  icon: Icon(Icons.settings, color: Colors.white),
-                ),
-              ]
-            : [],
-        centerTitle: true,
-        backgroundColor: cubit.screenList[cubit.currentSelectedIndex].tabColor,
-        title: Text(
-          cubit.screenList[cubit.currentSelectedIndex].name,
-          style: const TextStyle(color: Colors.white),
-        ),
-      ) : null,
+      appBar: widget.showAppBar
+          ? PreferredSize(
+              preferredSize: const Size.fromHeight(kToolbarHeight),
+              child: BlocSelector<SettingsCubit, SettingsState, int>(
+                selector: (state) => cubit.currentSelectedIndex,
+                builder: (context, selectedIndex) {
+                  return AppBar(
+                    centerTitle: true,
+                    backgroundColor: cubit.screenList[selectedIndex].tabColor,
+                    title: Text(
+                      cubit.screenList[selectedIndex].name,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
+              ),
+            )
+          : null,
       body: Stack(
         children: [
           Listener(
@@ -157,48 +148,43 @@ class _HomeScreenState extends State<HomeScreen> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _handleScreenTap,
-              child: Row(
-                children: [
-                  if (size > 600 &&
-                      !cubit
-                          .screenList[cubit.currentSelectedIndex]
-                          .isScreenFullWidth)
-                    Expanded(child: SizedBox(height: double.infinity)),
-                  Expanded(
-                    flex: size > 600 ? 4 : 1,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right:
-                            size > 600 &&
-                                cubit
-                                    .screenList[cubit.currentSelectedIndex]
-                                    .isScreenFullWidth &&
-                                cubit.handnessType == HandnessType.right
-                            ? 60
-                            : 0,
-                        left:
-                            size > 600 &&
-                                cubit
-                                    .screenList[cubit.currentSelectedIndex]
-                                    .isScreenFullWidth &&
-                                cubit.handnessType == HandnessType.left
-                            ? 60
-                            : 0,
+              child: BlocSelector<SettingsCubit, SettingsState, int>(
+                selector: (state) => cubit.currentSelectedIndex,
+                builder: (context, selectedIndex) {
+                  return Row(
+                    children: [
+                      if (size > 600 &&
+                          !cubit.screenList[selectedIndex].isScreenFullWidth)
+                        const Expanded(child: SizedBox(height: double.infinity)),
+                      Expanded(
+                        flex: size > 600 ? 4 : 1,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: size > 600 &&
+                                    cubit.screenList[selectedIndex]
+                                        .isScreenFullWidth &&
+                                    cubit.handnessType == HandnessType.right
+                                ? 60
+                                : 0,
+                            left: size > 600 &&
+                                    cubit.screenList[selectedIndex]
+                                        .isScreenFullWidth &&
+                                    cubit.handnessType == HandnessType.left
+                                ? 60
+                                : 0,
+                          ),
+                          child: SizedBox(
+                            width: size > 600 ? size / 1.3 : size,
+                            child: cubit.screenList[selectedIndex].screens,
+                          ),
+                        ),
                       ),
-                      child: SizedBox(
-                        width: size > 600 ? size / 1.3 : size,
-                        child: cubit
-                            .screenList[cubit.currentSelectedIndex]
-                            .screens,
-                      ),
-                    ),
-                  ),
-                  if (size > 600 &&
-                      !cubit
-                          .screenList[cubit.currentSelectedIndex]
-                          .isScreenFullWidth)
-                    Expanded(child: SizedBox(height: double.infinity)),
-                ],
+                      if (size > 600 &&
+                          !cubit.screenList[selectedIndex].isScreenFullWidth)
+                        const Expanded(child: SizedBox(height: double.infinity)),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -249,28 +235,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
-            child: BlocBuilder<SettingsCubit, SettingsState>(
-              builder: (context, state) {
-                tagList = generateUniqueTags(
-                  context
-                      .read<SettingsCubit>()
-                      .screenList
-                      .map((e) => e.name)
-                      .toList(),
-                );
-                return ScrollHintSelector(
-                  key: _hintSelectorKey,
-                  tagList: tagList,
-                  listData: cubit.screenList,
-                  onSelected: (int tag) {
-                    cubit.setcurrentSelectedIndex(tag);
-                  },
-                  currentSelectedIndex: context
-                      .read<SettingsCubit>()
-                      .currentSelectedIndex,
-                  externalScrollController: _hintSelectorController,
-                );
+            child: ScrollHintSelector(
+              key: _hintSelectorKey,
+              tagList: cubit.tagList,
+              listData: cubit.screenList,
+              onSelected: (int tag) {
+                cubit.setcurrentSelectedIndex(tag);
               },
+              currentSelectedIndex: cubit.currentSelectedIndex,
+              externalScrollController: _hintSelectorController,
             ),
           ),
         ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:section_bar_navigator_system/feature/settings/data/model/screenmodel.dart';
+import 'package:section_bar_navigator_system/feature/settings/presenter/settings_cubit.dart';
 import 'package:section_bar_navigator_system/section_bar_navigator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'sections/activity_page.dart';
 import 'sections/anesthetics/pages/anesthetic_page.dart';
@@ -21,7 +21,6 @@ final List<SectionData> defaultSectionList = [
   ),
   SectionData(
     screens: LabResultPage(),
-    isScreenFullWidth: true,
     name: 'Lab Results',
     tabColor: Colors.deepOrange,
   ),
@@ -36,10 +35,6 @@ void main() async {
       home: SectionBarNavigator(
         navigatorKey: navigatorKey,
         sections: defaultSectionList,
-        // showAppBar: true,
-        onFloatingPositionChanged: (dx, dy) {
-          print('Floating position changed: dx = $dx, dy = $dy');
-        },
       ),
     ),
   );

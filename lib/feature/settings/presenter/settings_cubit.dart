@@ -18,7 +18,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   Timer? _hideOverlayTimer;
 
   final List<SectionData> screenList = [];
-
+  List<String> tagList = [];
 
   HandnessType get handnessType => _handnessType;
   bool get vibrationEnabled => _vibrationEnabled;
@@ -67,13 +67,13 @@ class SettingsCubit extends Cubit<SettingsState> {
     screenList
       ..clear()
       ..addAll(newScreenOrder);
+    tagList = generateUniqueTags(screenList.map((e) => e.name).toList());
   }
 
   Future<void> resetReorderedSection() async {
     final prefs = await SharedPreferences.getInstance();
 
-    screenList
-      ..clear();
+    screenList..clear();
     // Default screens reset is removed because it now takes dynamic screens.
 
     await prefs.setStringList(
@@ -106,12 +106,16 @@ class SettingsCubit extends Cubit<SettingsState> {
     });
   }
 
-  Future<void> loadSettings(List<SectionData> initialSections) async {
+  Future<void> loadSettings(
+    List<SectionData> initialSections, {
+    required bool vibrationEnabled,
+    required HandnessType handnessType,
+  }) async {
     screenList.clear();
     screenList.addAll(initialSections);
     final prefs = await SharedPreferences.getInstance();
-    final hand = prefs.getString('section_nav_handnessType');
-    final vib = prefs.getBool('section_nav_vibrationEnabled');
+
+    // Removed persistence for hand and vib
     setSectionOrderInitially();
     final List<String>? positionList = prefs.getStringList(
       'section_nav_floatButtonPosition',
@@ -133,28 +137,20 @@ class SettingsCubit extends Cubit<SettingsState> {
       }
     }
 
-    if (hand == 'left') {
-      _handnessType = HandnessType.left;
-    } else {
-      _handnessType = HandnessType.right;
-    }
-
-    _vibrationEnabled = vib ?? true;
+    _handnessType = handnessType;
+    _vibrationEnabled = vibrationEnabled;
+    tagList = generateUniqueTags(screenList.map((e) => e.name).toList());
 
     emit(SettingsDataLoaded());
   }
 
   Future<void> setHandnessType(HandnessType value) async {
     _handnessType = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('section_nav_handnessType', value.name);
     emit(SettingsDataLoaded());
   }
 
   Future<void> toggleVibration(bool value) async {
     _vibrationEnabled = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('section_nav_vibrationEnabled', value);
     emit(SettingsDataLoaded());
   }
 }

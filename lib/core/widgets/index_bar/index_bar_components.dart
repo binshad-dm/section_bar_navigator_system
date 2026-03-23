@@ -167,8 +167,12 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
     super.initState();
     context.read<SettingsCubit>().controller =
         widget.externalScrollController ?? ScrollController();
-    _currentSelectedName = widget.listData[0].name;
-    _currentSelectedTag = widget.tagList.first;
+    if (widget.listData.isNotEmpty) {
+      _currentSelectedName = widget.listData[0].name;
+    }
+    if (widget.tagList.isNotEmpty) {
+      _currentSelectedTag = widget.tagList.first;
+    }
     context.read<SettingsCubit>().controller!.addListener(_onScroll);
     // Create the audio player.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -188,13 +192,32 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
 
   void _onScroll() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final cubit = context.read<SettingsCubit>();
+      if (widget.listData.isEmpty || widget.tagList.isEmpty) return;
+
+    final cubit = context.read<SettingsCubit>();
       cubit.isScrolled = true;
+      final double scrollOffset = cubit.controller?.offset ?? 0;
+      cubit.setCurrentScrollPosition(scrollOffset);
+
       final BuildContext? listContext = _listKey.currentContext;
       if (listContext == null) return;
       final RenderBox box = listContext.findRenderObject() as RenderBox;
       final double listCenter = box.size.height / 2;
-      for (int i = 0; i < widget.listData.length; i++) {
+
+      // Use a fixed item height for index estimation to avoid checking all items
+      // Base height is 38 (container) + 20 (padding) = 58
+      const double estimatedItemHeight = 58.0;
+      int estimatedIndex =
+          (scrollOffset / estimatedItemHeight).round().clamp(
+            0,
+            widget.listData.length - 1,
+          );
+
+      // Check a small window around the estimated index
+      int start = (estimatedIndex - 1).clamp(0, widget.listData.length - 1);
+      int end = (estimatedIndex + 1).clamp(0, widget.listData.length - 1);
+
+      for (int i = start; i <= end; i++) {
         final GlobalKey key = _itemKeys[i];
         final BuildContext? context = key.currentContext;
         if (context == null) continue;
@@ -207,15 +230,12 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
         if ((itemCenter - listCenter).abs() < renderBox.size.height / 2) {
           final SectionData newSelected = widget.listData[i];
           if (_currentSelectedName != newSelected.name) {
-            // cubit.screenList[cubit.currentSelectedIndex].currentSelectedScreenIndex = 0;
             _currentSelectedName = newSelected.name;
             _currentSelectedTag = widget.tagList[i];
             if (cubit.vibrationEnabled) {
               HapticFeedback.vibrate();
             }
-            currentSelectedIndex = widget.listData.indexWhere(
-              (element) => element.name == _currentSelectedName,
-            );
+            currentSelectedIndex = i;
             widget.onSelected(currentSelectedIndex);
 
             _selectedCenterOffset = itemCenter;
@@ -224,7 +244,6 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
           break;
         }
       }
-      cubit.setCurrentScrollPosition(cubit.controller?.offset);
     });
     showWidgetOnScroll();
   }
@@ -264,6 +283,8 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
 
   Future<void> _snapToNearestTag(double containerHeight) async {
     if (!mounted) return;
+    if (widget.listData.isEmpty || widget.tagList.isEmpty) return;
+
     final BuildContext? listContext = _listKey.currentContext;
     if (listContext == null) return;
 
@@ -299,21 +320,13 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
           context.read<SettingsCubit>().controller!.offset +
           (itemCenter - listCenter);
 
-      if ((context.read<SettingsCubit>().controller!.offset - targetOffset)
-              .abs() >
-          8.0) {
-        _isSnapping = true;
-        if (context.read<SettingsCubit>().vibrationEnabled) {
-          HapticFeedback.vibrate();
-        }
-
-        await context.read<SettingsCubit>().controller!.animateTo(
-          targetOffset,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-        _isSnapping = false;
-      }
+      _isSnapping = true;
+      await context.read<SettingsCubit>().controller!.animateTo(
+            targetOffset,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+      _isSnapping = false;
     }
   }
 

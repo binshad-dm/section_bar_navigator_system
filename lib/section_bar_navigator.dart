@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:section_bar_navigator_system/feature/settings/data/model/screenmodel.dart';
-// Note: We might move screenmodel into this file or a nearby models/ file shortly.
+import 'package:section_bar_navigator_system/feature/settings/presenter/settings_cubit.dart';
 import 'package:section_bar_navigator_system/app.dart';
 
 // Type definitions for callbacks
@@ -13,10 +13,16 @@ class SectionBarNavigator extends StatelessWidget {
   final List<SectionData> sections;
 
   /// The root navigator key for the app.
-  final GlobalKey<NavigatorState> navigatorKey;
+  final GlobalKey<NavigatorState>? navigatorKey;
 
   /// Whether to display an AppBar on the screens (when in full screen mode).
   final bool showAppBar;
+
+  /// Whether to enable vibration when scrolling through sections.
+  final bool vibrationEnabled;
+
+  /// The default handness (left/right) for the index bar and floating button.
+  final HandnessType? handnessType;
 
   /// (Optional) Callback fired when the user drags and stops the floating button.
   final FloatingPositionChangedCallback? onFloatingPositionChanged;
@@ -28,11 +34,13 @@ class SectionBarNavigator extends StatelessWidget {
   const SectionBarNavigator({
     super.key,
     required this.sections,
-    required this.navigatorKey,
-    this.showAppBar = false,
+    this.navigatorKey,
+    this.showAppBar = true,
     this.onFloatingPositionChanged,
     this.initialFloatingPositionDx,
     this.initialFloatingPositionDy,
+    this.vibrationEnabled = true,
+    this.handnessType,
   });
 
   @override
@@ -42,8 +50,10 @@ class SectionBarNavigator extends StatelessWidget {
       sections: sections,
       showAppBar: showAppBar,
       onFloatingPositionChanged: onFloatingPositionChanged,
-      dx: initialFloatingPositionDx,
-      dy: initialFloatingPositionDy,
+      initialFloatingPositionDx: initialFloatingPositionDx,
+      initialFloatingPositionDy: initialFloatingPositionDy,
+      vibrationEnabled: vibrationEnabled,
+      handnessType: handnessType ?? HandnessType.right,
     );
   }
 }
