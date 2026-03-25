@@ -8,7 +8,7 @@ class SectionData {
 
   SectionData({
     required this.name,
-    this.isScreenFullWidth = false,
+    this.isScreenFullWidth = true,
     required this.tabColor,
     required this.screens,
   });
