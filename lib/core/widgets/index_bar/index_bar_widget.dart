@@ -106,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size.shortestSide;
+    final isTablet = size >= 600;
     final cubit = context.read<SettingsCubit>();
 
     return Scaffold(
@@ -132,10 +133,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Listener(
             onPointerDown: (event) {
-              _handlePointerDown(event, size < 600);
+              _handlePointerDown(event, !isTablet);
             },
             onPointerUp: (event) {
-              _handlePointerUp(event, size < 600);
+              _handlePointerUp(event, !isTablet);
             },
             onPointerCancel: (_) {
               _pointerCount = 0;
@@ -143,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _lastPointerDeltas.clear();
             },
             onPointerMove: (event) {
-              _handlePointerMove(event, size < 600);
+              _handlePointerMove(event, !isTablet);
             },
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -153,20 +154,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (context, selectedIndex) {
                   return Row(
                     children: [
-                      if (size > 600 &&
+                      if (isTablet &&
                           !cubit.screenList[selectedIndex].isScreenFullWidth)
                         const Expanded(child: SizedBox(height: double.infinity)),
                       Expanded(
-                        flex: size > 600 ? 4 : 1,
+                        flex: isTablet ? 4 : 1,
                         child: Padding(
                           padding: EdgeInsets.only(
-                            right: size > 600 &&
+                            right: isTablet &&
                                     cubit.screenList[selectedIndex]
                                         .isScreenFullWidth &&
                                     cubit.handnessType == HandnessType.right
                                 ? 60
                                 : 0,
-                            left: size > 600 &&
+                            left: isTablet &&
                                     cubit.screenList[selectedIndex]
                                         .isScreenFullWidth &&
                                     cubit.handnessType == HandnessType.left
@@ -174,12 +175,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 : 0,
                           ),
                           child: SizedBox(
-                            width: size > 600 ? size / 1.3 : size,
+                            width: isTablet ? size / 1.3 : size,
                             child: cubit.screenList[selectedIndex].screens,
                           ),
                         ),
                       ),
-                      if (size > 600 &&
+                      if (isTablet &&
                           !cubit.screenList[selectedIndex].isScreenFullWidth)
                         const Expanded(child: SizedBox(height: double.infinity)),
                     ],
@@ -188,13 +189,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          if (size > 600)
+          if (isTablet)
             Listener(
               onPointerDown: (event) {
-                _handlePointerDown(event, size < 600);
+                _handlePointerDown(event, !isTablet);
               },
               onPointerUp: (event) {
-                _handlePointerUp(event, size < 600);
+                _handlePointerUp(event, !isTablet);
               },
               onPointerCancel: (_) {
                 _pointerCount = 0;
@@ -202,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _lastPointerDeltas.clear();
               },
               onPointerMove: (event) {
-                _handlePointerMove(event, size < 600);
+                _handlePointerMove(event, !isTablet);
               },
               child: GestureDetector(
                 onTap: _handleScreenTap,
@@ -217,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: double.infinity,
                         ),
                       ),
-                    Expanded(flex: size > 600 ? 4 : 1, child: SizedBox()),
+                    Expanded(flex: isTablet ? 4 : 1, child: SizedBox()),
 
                     if (!cubit
                         .screenList[cubit.currentSelectedIndex]

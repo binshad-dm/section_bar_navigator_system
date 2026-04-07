@@ -40,6 +40,7 @@ class _AppState extends State<App> {
     bool isDragging = false;
     final size = MediaQuery.of(context).size.shortestSide;
     final mediaQuery = MediaQuery.of(context).size;
+    final isTablet = size >= 600;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -64,7 +65,7 @@ class _AppState extends State<App> {
                 body: Center(child: CircularProgressIndicator()),
               );
             }
-            return size > 600
+            return isTablet
                 ? HomeScreen(showAppBar: widget.showAppBar)
                 : FloatingDraggableWidget(
                     resizeToAvoidBottomInset: false,
@@ -92,12 +93,24 @@ class _AppState extends State<App> {
                         }
                       }
                     },
-                    dx: context.read<SettingsCubit>().floatingWidgetCurrentDx ??
-                        widget.initialFloatingPositionDx ??
-                        mediaQuery.width - 45,
-                    dy: context.read<SettingsCubit>().floatingWidgetCurrentDy ??
-                        widget.initialFloatingPositionDy ??
-                        mediaQuery.height / 2 - 22.5,
+                    dx: (context.read<SettingsCubit>().floatingWidgetCurrentDx ??
+                            widget.initialFloatingPositionDx ??
+                            mediaQuery.width - 45)
+                        .clamp(
+                          0.0,
+                          (mediaQuery.width - 45) > 0
+                              ? (mediaQuery.width - 45)
+                              : 0.0,
+                        ),
+                    dy: (context.read<SettingsCubit>().floatingWidgetCurrentDy ??
+                            widget.initialFloatingPositionDy ??
+                            mediaQuery.height / 2 - 22.5)
+                        .clamp(
+                          0.0,
+                          (mediaQuery.height - 45) > 0
+                              ? (mediaQuery.height - 45)
+                              : 0.0,
+                        ),
                     floatingWidget:
                         context.watch<SettingsCubit>().isFloatingScreen
                             ? InkWell(

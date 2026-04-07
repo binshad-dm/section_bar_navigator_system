@@ -374,7 +374,7 @@ class ScrollHintSelectorState extends State<ScrollHintSelector> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Visibility(
-      visible: size.shortestSide > 600
+      visible: size.shortestSide >= 600
           ? true
           : !context.watch<SettingsCubit>().isFloatingScreen,
       child: Align(
