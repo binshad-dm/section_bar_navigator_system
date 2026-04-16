@@ -6,6 +6,7 @@ import 'package:section_bar_navigator_system/app.dart';
 
 // Type definitions for callbacks
 typedef FloatingPositionChangedCallback = void Function(double dx, double dy);
+typedef SectionChangedCallback = void Function(int index, SectionData sectionData);
 
 /// The main entry point for the Section Bar Navigator package.
 class SectionBarNavigator extends StatelessWidget {
@@ -27,6 +28,9 @@ class SectionBarNavigator extends StatelessWidget {
   /// (Optional) Callback fired when the user drags and stops the floating button.
   final FloatingPositionChangedCallback? onFloatingPositionChanged;
 
+  /// (Optional) Callback fired when the user selects a section.
+  final SectionChangedCallback? onSectionChanged;
+
   /// Configuration for the floating button's position when it's first created (if not saved previously).
   final double? initialFloatingPositionDx;
   final double? initialFloatingPositionDy;
@@ -41,6 +45,7 @@ class SectionBarNavigator extends StatelessWidget {
     this.initialFloatingPositionDy,
     this.vibrationEnabled = true,
     this.handnessType,
+    this.onSectionChanged,
   });
 
   @override
@@ -54,6 +59,7 @@ class SectionBarNavigator extends StatelessWidget {
       initialFloatingPositionDy: initialFloatingPositionDy,
       vibrationEnabled: vibrationEnabled,
       handnessType: handnessType ?? HandnessType.right,
+      onSectionChanged: onSectionChanged,
     );
   }
 }

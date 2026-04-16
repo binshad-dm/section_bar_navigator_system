@@ -19,6 +19,7 @@ class App extends StatefulWidget {
     this.initialFloatingPositionDy,
     this.vibrationEnabled = true,
     this.handnessType = HandnessType.right,
+    this.onSectionChanged,
   });
 
   final GlobalKey<NavigatorState>? navigatorKey;
@@ -29,6 +30,7 @@ class App extends StatefulWidget {
   final double? initialFloatingPositionDy;
   final bool vibrationEnabled;
   final HandnessType handnessType;
+  final SectionChangedCallback? onSectionChanged;
 
   @override
   State<App> createState() => _AppState();
@@ -66,13 +68,17 @@ class _AppState extends State<App> {
               );
             }
             return isTablet
-                ? HomeScreen(showAppBar: widget.showAppBar)
+                ? HomeScreen(
+                    showAppBar: widget.showAppBar,
+                    onSectionChanged: widget.onSectionChanged,
+                  )
                 : FloatingDraggableWidget(
                     resizeToAvoidBottomInset: false,
                     mainScreenWidget: HomeScreen(
                       showAppBar: widget.showAppBar,
                       isDisableIndexBar:
                           !context.watch<SettingsCubit>().isFloatingScreen,
+                      onSectionChanged: widget.onSectionChanged,
                     ),
                     onDragging: (p0) {
                       isDragging = p0;

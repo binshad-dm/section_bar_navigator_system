@@ -3,15 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:section_bar_navigator_system/core/widgets/index_bar/index_bar_components.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/settings_cubit.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/state/settings_state.dart';
+import 'package:section_bar_navigator_system/section_bar_navigator.dart';
 
 /// The main home screen widget for the app.
 class HomeScreen extends StatefulWidget {
   final bool isDisableIndexBar;
   final bool showAppBar;
+  final SectionChangedCallback? onSectionChanged;
   const HomeScreen({
     super.key,
     this.isDisableIndexBar = false,
     this.showAppBar = true,
+    this.onSectionChanged,
   });
 
   @override
@@ -30,8 +33,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // tagList calculation moved to SettingsCubit
     super.initState();
+    // tagList calculation moved to SettingsCubit
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.onSectionChanged != null) {
+        final cubit = context.read<SettingsCubit>();
+        widget.onSectionChanged!(
+          cubit.currentSelectedIndex,
+          cubit.screenList[cubit.currentSelectedIndex],
+        );
+      }
+    });
   }
 
   @override
@@ -156,19 +168,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       if (isTablet &&
                           !cubit.screenList[selectedIndex].isScreenFullWidth)
-                        const Expanded(child: SizedBox(height: double.infinity)),
+                        const Expanded(
+                          child: SizedBox(height: double.infinity),
+                        ),
                       Expanded(
                         flex: isTablet ? 4 : 1,
                         child: Padding(
                           padding: EdgeInsets.only(
-                            right: isTablet &&
-                                    cubit.screenList[selectedIndex]
+                            right:
+                                isTablet &&
+                                    cubit
+                                        .screenList[selectedIndex]
                                         .isScreenFullWidth &&
                                     cubit.handnessType == HandnessType.right
                                 ? 60
                                 : 0,
-                            left: isTablet &&
-                                    cubit.screenList[selectedIndex]
+                            left:
+                                isTablet &&
+                                    cubit
+                                        .screenList[selectedIndex]
                                         .isScreenFullWidth &&
                                     cubit.handnessType == HandnessType.left
                                 ? 60
@@ -182,7 +200,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       if (isTablet &&
                           !cubit.screenList[selectedIndex].isScreenFullWidth)
-                        const Expanded(child: SizedBox(height: double.infinity)),
+                        const Expanded(
+                          child: SizedBox(height: double.infinity),
+                        ),
                     ],
                   );
                 },
@@ -242,6 +262,9 @@ class _HomeScreenState extends State<HomeScreen> {
               listData: cubit.screenList,
               onSelected: (int tag) {
                 cubit.setcurrentSelectedIndex(tag);
+                if (widget.onSectionChanged != null) {
+                  widget.onSectionChanged!(tag, cubit.screenList[tag]);
+                }
               },
               currentSelectedIndex: cubit.currentSelectedIndex,
               externalScrollController: _hintSelectorController,

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:section_bar_navigator_system/feature/settings/data/model/screenmodel.dart';
 import 'package:section_bar_navigator_system/feature/settings/presenter/settings_cubit.dart';
@@ -35,6 +37,10 @@ void main() async {
       home: SectionBarNavigator(
         navigatorKey: navigatorKey,
         sections: defaultSectionList,
+        onSectionChanged: (index, sectionData) {
+          log('Section changed to ${sectionData.name}');
+          log('Section color: ${sectionData.tabColor}');
+        },
       ),
     ),
   );
