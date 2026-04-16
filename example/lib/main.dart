@@ -32,16 +32,37 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    MaterialApp(
-      home: SectionBarNavigator(
-        navigatorKey: navigatorKey,
-        sections: defaultSectionList,
-        onSectionChanged: (index, sectionData) {
-          log('Section changed to ${sectionData.name}');
-          log('Section color: ${sectionData.tabColor}');
-        },
-      ),
-    ),
-  );
+  runApp(MaterialApp(home: MYWidget()));
+}
+
+class MYWidget extends StatefulWidget {
+  const MYWidget({super.key});
+
+  @override
+  State<MYWidget> createState() => _MYWidgetState();
+}
+
+class _MYWidgetState extends State<MYWidget> {
+  Color color = Colors.white;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: SectionBarNavigator(
+            navigatorKey: navigatorKey,
+            sections: defaultSectionList,
+            onSectionChanged: (index, sectionData) {
+              log('Section changed to ${sectionData.name}');
+              log('Section color: ${sectionData.tabColor}');
+              setState(() {
+                color = sectionData.tabColor;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }

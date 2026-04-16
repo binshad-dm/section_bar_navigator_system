@@ -130,6 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 selector: (state) => cubit.currentSelectedIndex,
                 builder: (context, selectedIndex) {
                   return AppBar(
+                    elevation: 0,
+
+                    scrolledUnderElevation: 0.0,
                     centerTitle: true,
                     backgroundColor: cubit.screenList[selectedIndex].tabColor,
                     title: Text(
